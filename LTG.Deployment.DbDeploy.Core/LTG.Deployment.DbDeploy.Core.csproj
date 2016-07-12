@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BC028DCD-4969-4A20-A1E1-8B77A386F6E5}</ProjectGuid>
+    <ProjectGuid>{238948D4-F63C-4747-B4D4-4D2EEB7D7DDB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LTG.Deployment.DbDeploy.Task</RootNamespace>
-    <AssemblyName>LTG.Deployment.DbDeploy.Task</AssemblyName>
+    <RootNamespace>LTG.Deployment.DbDeploy.Core</RootNamespace>
+    <AssemblyName>LTG.Deployment.DbDeploy.Core</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,8 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>..\packages\JetBrains.Annotations.10.1.5\lib\net\JetBrains.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,14 +47,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DbDeployTask.cs" />
+    <Compile Include="DbDeployer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LTG.Deployment.DbDeploy.Core\LTG.Deployment.DbDeploy.Core.csproj">
-      <Project>{238948D4-F63C-4747-B4D4-4D2EEB7D7DDB}</Project>
-      <Name>LTG.Deployment.DbDeploy.Core</Name>
+    <ProjectReference Include="..\LTG.Deployment.DbDeploy.DataAccess\LTG.Deployment.DbDeploy.DataAccess.csproj">
+      <Project>{B9C3D7F1-DB7F-43BC-8E43-B1A3B4EDD170}</Project>
+      <Name>LTG.Deployment.DbDeploy.DataAccess</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
