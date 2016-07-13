@@ -1,14 +1,14 @@
 ﻿using JetBrains.Annotations;
 using log4net;
-using LTG.Deployment.DbDeploy.DataAccess.Helpers;
-using LTG.Deployment.DbDeploy.DataAccess.Models;
+using LTG.Deployment.DbDeploy.Core.Helpers;
+using LTG.Deployment.DbDeploy.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace LTG.Deployment.DbDeploy.DataAccess.Repositories
+namespace LTG.Deployment.DbDeploy.Core.Repositories
 {
     public interface IChangeScriptRepository
     {
@@ -60,6 +60,7 @@ namespace LTG.Deployment.DbDeploy.DataAccess.Repositories
                 var script = new ChangeScript
                 {
                     Path = filePath,
+                    Filename = filename,
                     Number = int.Parse(match.Groups["number"].Value),
                     Description = match.Groups["description"].Value,
                     IsPre = match.Groups["pre"].Success,

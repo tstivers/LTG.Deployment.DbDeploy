@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using LTG.Deployment.DbDeploy.DataAccess.Models;
+using LTG.Deployment.DbDeploy.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,9 +7,27 @@ using System.Linq;
 
 namespace LTG.Deployment.DbDeploy.DataAccess.Repositories
 {
-    public class ChangelogRepository : IDisposable
+    public interface ITargetDbRepository : IDisposable
     {
-        public IDbConnection Connection { get; set; }
+        void InitializeTargetDb();
+
+        IEnumerable<Changelog> GetChangelogs();
+
+        Changelog CreateChangelog(Changelog changelog);
+
+        void UpdateChangelog(Changelog changelog);
+
+        void ExecuteScript(string sql);
+    }
+
+    public class TargetDbRepository : ITargetDbRepository
+    {
+        public TargetDbRepository(IDbConnection connection)
+        {
+            Connection = connection;
+        }
+
+        public IDbConnection Connection { get; }
 
         private IDbTransaction _readLockTransaction;
 
@@ -18,17 +36,36 @@ namespace LTG.Deployment.DbDeploy.DataAccess.Repositories
 
         public string ChangelogTableName { get; set; } = "[dbo].[Changelog]";
 
+        public void InitializeTargetDb()
+        {
+            Connection.Execute($@"
+                IF object_id(N'{ChangelogTableName}', N'U') IS NULL
+                BEGIN
+                    CREATE TABLE {ChangelogTableName} (
+                        [Id] INT NOT NULL PRIMARY KEY IDENTITY
+                        ,[Number] INT NOT NULL
+                        ,[Description] VARCHAR(250) NOT NULL
+                        ,[AppliedStart] DATETIME2(7) NOT NULL
+                        ,[AppliedEnd] DATETIME2(7) NULL
+                        ,[Md5] NVARCHAR(100) NOT NULL
+                        );
+
+                    CREATE UNIQUE INDEX [IX_Changelog] ON {ChangelogTableName} ([Number]);
+                END
+            ");
+        }
+
         public IEnumerable<Changelog> GetChangelogs()
         {
             return Connection.Query<Changelog>($@"
                 SELECT [Id]
-                    ,[Name]
+                    ,[Number]
                     ,[Description]
                     ,[AppliedStart]
                     ,[AppliedEnd]
                     ,[Md5]
                 FROM {ChangelogTableName}
-            ", transaction: ReadLockTransaction);
+            ");
         }
 
         public void UpdateChangelog(Changelog changelog)
@@ -40,17 +77,17 @@ namespace LTG.Deployment.DbDeploy.DataAccess.Repositories
             ", changelog);
         }
 
-        public void CreateChangelog(Changelog changelog)
+        public Changelog CreateChangelog(Changelog changelog)
         {
             var id = Connection.Query<int>($@"
                 INSERT INTO {ChangelogTableName} (
-                    [Name]
+                    [Number]
                     ,[Description]
                     ,[AppliedStart]
                     ,[Md5]
                     )
                 VALUES (
-                    @Name
+                    @Number
                     ,@Description
                     ,@AppliedStart
                     ,@Md5
@@ -59,11 +96,19 @@ namespace LTG.Deployment.DbDeploy.DataAccess.Repositories
             ", changelog).Single();
 
             changelog.Id = id;
+
+            return changelog;
         }
 
         public void Dispose()
         {
             _readLockTransaction?.Rollback();
+            _readLockTransaction?.Dispose();
+        }
+
+        public void ExecuteScript(string sql)
+        {
+            Connection.Execute(sql);
         }
     }
 }

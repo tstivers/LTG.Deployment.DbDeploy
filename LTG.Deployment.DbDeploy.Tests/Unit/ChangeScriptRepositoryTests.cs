@@ -1,8 +1,9 @@
 ﻿using FluentAssertions;
 using log4net.Appender;
 using log4net.Core;
-using LTG.Deployment.DbDeploy.DataAccess.Models;
-using LTG.Deployment.DbDeploy.DataAccess.Repositories;
+using LTG.Deployment.DbDeploy.Core.Helpers;
+using LTG.Deployment.DbDeploy.Core.Models;
+using LTG.Deployment.DbDeploy.Core.Repositories;
 using NUnit.Framework;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
@@ -30,7 +31,7 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
         {
             var fileSystem = new MockFileSystem();
 
-            var repo = new ChangeScriptRepository(ScriptPath, fileSystem);
+            var repo = new ChangeScriptRepository(ScriptPath, null, fileSystem);
 
             Assert.That(() => repo.GetChangeScripts(), Throws.ArgumentException.And.Message.Contains(ScriptPath));
         }
@@ -44,36 +45,41 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
                 {
                     Filename = "001 - Standard.sql",
                     Number = 1,
-                    Description = "Standard"
+                    Description = "Standard",
+                    Md5 = "D41D8CD98F00B204E9800998ECF8427E"
                 },
                 new ChangeScript
                 {
                     Filename = "002.sql",
                     Number = 2,
-                    Description = ""
+                    Description = "",
+                    Md5 = "D41D8CD98F00B204E9800998ECF8427E"
                 },
                 new ChangeScript
                 {
                     Filename = "3  - - --- some stuff.sql",
                     Number = 3,
-                    Description = "some stuff"
+                    Description = "some stuff",
+                    Md5 = "D41D8CD98F00B204E9800998ECF8427E"
                 },
                 new ChangeScript
                 {
                     Filename = "004pre - pre script.sql",
                     Number = 4,
                     Description = "pre script",
-                    IsPre = true
+                    IsPre = true,
+                    Md5 = "D41D8CD98F00B204E9800998ECF8427E"
                 },
             };
 
             var fileSystem = new MockFileSystem(scripts.ToDictionary(x => Path.Combine(ScriptPath, x.Filename), y => new MockFileData("")));
+            var md5Service = new Md5Service(fileSystem);
 
-            var repo = new ChangeScriptRepository(ScriptPath, fileSystem);
+            var repo = new ChangeScriptRepository(ScriptPath, md5Service, fileSystem);
 
             var results = repo.GetChangeScripts();
 
-            results.ShouldBeEquivalentTo(scripts);
+            results.ShouldBeEquivalentTo(scripts, o => o.Excluding(info => info.SelectedMemberPath.EndsWith(".Path")));
         }
 
         [Test]
@@ -83,7 +89,7 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
 
             var fileSystem = new MockFileSystem(badFiles.ToDictionary(x => Path.Combine(ScriptPath, x), y => new MockFileData("")));
 
-            var repo = new ChangeScriptRepository(ScriptPath, fileSystem);
+            var repo = new ChangeScriptRepository(ScriptPath, null, fileSystem);
 
             repo.GetChangeScripts();
 

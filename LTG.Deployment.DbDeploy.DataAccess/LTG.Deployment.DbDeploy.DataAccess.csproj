@@ -56,10 +56,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\Md5Service.cs" />
     <Compile Include="Models\Changelog.cs" />
     <Compile Include="Models\ChangeScript.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\ChangelogRepository.cs" />
+    <Compile Include="Repositories\TargetDbRepository.cs" />
     <Compile Include="Repositories\ChangeScriptRepository.cs" />
   </ItemGroup>
   <ItemGroup>

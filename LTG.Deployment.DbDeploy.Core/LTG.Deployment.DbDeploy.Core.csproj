@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.1\lib\net451\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="JetBrains.Annotations">
       <HintPath>..\packages\JetBrains.Annotations.10.1.5\lib\net\JetBrains.Annotations.dll</HintPath>
     </Reference>
@@ -39,6 +43,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Abstractions, Version=2.0.0.124, Culture=neutral, PublicKeyToken=d480b5b72fb413da, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Abstractions.2.0.0.124\lib\net40\System.IO.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,13 +56,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbDeployer.cs" />
+    <Compile Include="Exceptions\ScriptFailedException.cs" />
+    <Compile Include="Exceptions\ScriptPartiallyAppliedException.cs" />
+    <Compile Include="Helpers\Md5Service.cs" />
+    <Compile Include="Helpers\ScriptProcessor.cs" />
+    <Compile Include="Models\Changelog.cs" />
+    <Compile Include="Models\ChangeScript.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LTG.Deployment.DbDeploy.DataAccess\LTG.Deployment.DbDeploy.DataAccess.csproj">
-      <Project>{B9C3D7F1-DB7F-43BC-8E43-B1A3B4EDD170}</Project>
-      <Name>LTG.Deployment.DbDeploy.DataAccess</Name>
-    </ProjectReference>
+    <Compile Include="Repositories\ChangeScriptRepository.cs" />
+    <Compile Include="Repositories\TargetDbRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

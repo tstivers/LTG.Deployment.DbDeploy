@@ -1,7 +1,13 @@
 ﻿using JetBrains.Annotations;
 using log4net;
+using LTG.Deployment.DbDeploy.Core.Exceptions;
+using LTG.Deployment.DbDeploy.Core.Models;
+using LTG.Deployment.DbDeploy.Core.Repositories;
 using LTG.Deployment.DbDeploy.DataAccess.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Reflection;
 
 namespace LTG.Deployment.DbDeploy.Core
@@ -11,51 +17,118 @@ namespace LTG.Deployment.DbDeploy.Core
         [UsedImplicitly]
         private static ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public string[] Environments { get; set; }
+        public ITargetDbRepository TargetDbRepository { get; }
 
-        public ChangelogRepository ChangelogRepository { get; private set; }
+        public IChangeScriptRepository ChangeScriptRepository { get; }
 
-        public DbDeployer(ChangelogRepository changelogRepository)
+        public DbDeployer(ITargetDbRepository targetDbRepository, IChangeScriptRepository changeScriptRepository)
         {
-            ChangelogRepository = changelogRepository;
+            TargetDbRepository = targetDbRepository;
+            ChangeScriptRepository = changeScriptRepository;
         }
 
         public void Execute()
         {
-            // connect to database
-            // lock changelog table
-
-            // generate script list
-            // print scripts to be applied
-            // apply scripts
-            // unlock changelog table
+            _logger.Info("Initializing target database.");
+            TargetDbRepository.InitializeTargetDb();
+            var scriptsToApply = GenerateScriptList();
+            if (scriptsToApply.Any())
+            {
+                ApplyScripts(scriptsToApply);
+            }
+            else
+            {
+                _logger.Info("No scripts need to be applied.");
+            }
         }
 
-        public void GenerateScriptList()
+        public IList<ChangeScript> GenerateScriptList()
         {
-            // load scripts from database
-            // load scripts from disk
-            // figure out which scripts should be applied
+            var appliedScripts = TargetDbRepository.GetChangelogs().ToDictionary(x => x.Number);
+
+            if (appliedScripts.Any())
+                _logger.Info($"Target database has {appliedScripts.Count} applied scripts. Max applied number is {appliedScripts.Max(x => x.Value.Number)}.");
+
+            var existingScripts = ChangeScriptRepository.GetChangeScripts().ToList();
+
+            if (existingScripts.Any())
+                _logger.Info($"Loaded {existingScripts.Count} pending scripts. Max pending number is {existingScripts.Max(x => x.Number)}");
+
+            var scriptsToApply = new List<ChangeScript>();
+
+            foreach (var script in existingScripts)
+            {
+                Changelog applied;
+                if (!appliedScripts.TryGetValue(script.Number, out applied))
+                {
+                    _logger.Info($"Script {script.Name} needs to be applied.");
+                    scriptsToApply.Add(script);
+                }
+                else
+                {
+                    if (!applied.AppliedEnd.HasValue)
+                    {
+                        _logger.Error($"Script {script.Name} was partially applied in a previous execution. Please fix the script and clean up the changelog table before attempting deployment.");
+                        throw new ScriptPartiallyAppliedException(script.Number, script.Description);
+                    }
+
+                    if (applied.Md5 != script.Md5)
+                    {
+                        _logger.Warn($"Script {script.Name} has been changed since it was applied. New MD5 is {script.Md5}.");
+                    }
+                }
+            }
+
+            return scriptsToApply;
         }
 
-        public void ApplyScripts()
+        public void ApplyScripts(IList<ChangeScript> scripts)
         {
-            // for each script to be applied
-            // apply it
+            _logger.Info($"Applying {scripts.Count} pending scripts.");
+            foreach (var script in scripts)
+            {
+                ApplyScript(script);
+            }
         }
 
-        public void ApplyScript()
+        public void ApplyScript(ChangeScript script)
         {
-            // update changelog entry start time
-            // begin transaction
+            var logEntry = new Changelog
+            {
+                Number = script.Number,
+                Description = script.Description,
+                Md5 = script.Md5,
+                AppliedStart = DateTimeOffset.Now
+            };
+
+            _logger.Info($"Applying script {script.Name}.");
+
+            // create changelog entry
+            logEntry = TargetDbRepository.CreateChangelog(logEntry);
+
             // execute sql
-            // complete/rollback transaction
+            var sql = ChangeScriptRepository.GetScriptContents(script);
+            try
+            {
+                TargetDbRepository.ExecuteScript(sql);
+            }
+            catch (SqlException sqlEx)
+            {
+                _logger.Error($"Failed to apply script {script.Name}.");
+                _logger.Error($"Error was: {sqlEx.Message}");
+                throw new ScriptFailedException(script, sql, sqlEx);
+            }
+
             // update changelog entry finish time
+            logEntry.AppliedEnd = DateTimeOffset.Now;
+            TargetDbRepository.UpdateChangelog(logEntry);
+
+            _logger.Info($"Finished script {script.Name}.");
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            TargetDbRepository?.Dispose();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LTG.Deployment.DbDeploy.DataAccess.Models
+namespace LTG.Deployment.DbDeploy.Core.Models
 {
     public class Changelog
     {
