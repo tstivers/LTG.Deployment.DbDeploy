@@ -46,6 +46,14 @@ namespace LTG.Deployment.DbDeploy.Core
         {
             var appliedScripts = TargetDbRepository.GetChangelogs().ToDictionary(x => x.Number);
 
+            var partiallyApplied = appliedScripts.Values.Where(x => x.AppliedEnd == null).ToList();
+            if (partiallyApplied.Any())
+            {
+                var applied = partiallyApplied.First();
+                _logger.Error($"Script {applied.Name} was partially applied in a previous execution. Please fix the script and clean up the changelog table before attempting deployment.");
+                throw new ScriptPartiallyAppliedException(applied.Number, applied.Description);
+            }
+
             if (appliedScripts.Any())
                 _logger.Info($"Target database has {appliedScripts.Count} applied scripts. Max applied number is {appliedScripts.Max(x => x.Value.Number)}.");
 
@@ -53,6 +61,13 @@ namespace LTG.Deployment.DbDeploy.Core
 
             if (existingScripts.Any())
                 _logger.Info($"Loaded {existingScripts.Count} pending scripts. Max pending number is {existingScripts.Max(x => x.Number)}");
+
+            var duplicates = existingScripts.GroupBy(x => x.Number).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
+            if (duplicates.Any())
+            {
+                _logger.Error($"Found duplicate script numbers in changescripts folder: {string.Join(", ", duplicates)}");
+                throw new DuplicateChangeNumberException(duplicates);
+            }
 
             var scriptsToApply = new List<ChangeScript>();
 
@@ -66,12 +81,6 @@ namespace LTG.Deployment.DbDeploy.Core
                 }
                 else
                 {
-                    if (!applied.AppliedEnd.HasValue)
-                    {
-                        _logger.Error($"Script {script.Name} was partially applied in a previous execution. Please fix the script and clean up the changelog table before attempting deployment.");
-                        throw new ScriptPartiallyAppliedException(script.Number, script.Description);
-                    }
-
                     if (applied.Md5 != script.Md5)
                     {
                         _logger.Warn($"Script {script.Name} has been changed since it was applied. New MD5 is {script.Md5}.");

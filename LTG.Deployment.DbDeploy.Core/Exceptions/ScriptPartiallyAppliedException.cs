@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace LTG.Deployment.DbDeploy.Core.Exceptions
+﻿namespace LTG.Deployment.DbDeploy.Core.Exceptions
 {
-    public class ScriptPartiallyAppliedException : Exception
+    public class ScriptPartiallyAppliedException : DbDeployException
     {
         public int Number { get; }
 

@@ -3,7 +3,7 @@ using System;
 
 namespace LTG.Deployment.DbDeploy.Core.Exceptions
 {
-    public class ScriptFailedException : Exception
+    public class ScriptFailedException : DbDeployException
     {
         public ChangeScript ChangeScript { get; }
 

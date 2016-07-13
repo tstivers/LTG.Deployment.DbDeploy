@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbDeployer.cs" />
+    <Compile Include="Exceptions\DbDeployException.cs" />
+    <Compile Include="Exceptions\DuplicateChangeScriptNumberException.cs" />
     <Compile Include="Exceptions\ScriptFailedException.cs" />
     <Compile Include="Exceptions\ScriptPartiallyAppliedException.cs" />
     <Compile Include="Helpers\Md5Service.cs" />

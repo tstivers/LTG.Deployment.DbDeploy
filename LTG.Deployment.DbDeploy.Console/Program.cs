@@ -2,6 +2,7 @@
 using log4net;
 using log4net.Config;
 using LTG.Deployment.DbDeploy.Core;
+using LTG.Deployment.DbDeploy.Core.Exceptions;
 using LTG.Deployment.DbDeploy.Core.Helpers;
 using LTG.Deployment.DbDeploy.Core.Repositories;
 using LTG.Deployment.DbDeploy.DataAccess.Repositories;
@@ -38,8 +39,14 @@ namespace LTG.Deployment.DbDeploy.Console
             });
 
             var deployer = container.GetInstance<DbDeployer>();
+            try
+            {
+                deployer.Execute();
+            }
+            catch (DbDeployException) // don't need to log stack trace for these as they are logical errors
+            {
+            }
 
-            deployer.Execute();
             System.Console.ReadKey();
         }
     }
