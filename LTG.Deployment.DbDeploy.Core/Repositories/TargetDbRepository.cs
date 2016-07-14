@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace LTG.Deployment.DbDeploy.DataAccess.Repositories
+namespace LTG.Deployment.DbDeploy.Core.Repositories
 {
     public interface ITargetDbRepository : IDisposable
     {

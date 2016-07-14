@@ -3,7 +3,6 @@ using log4net;
 using LTG.Deployment.DbDeploy.Core.Exceptions;
 using LTG.Deployment.DbDeploy.Core.Models;
 using LTG.Deployment.DbDeploy.Core.Repositories;
-using LTG.Deployment.DbDeploy.DataAccess.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;

@@ -14,7 +14,7 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
         [Test]
         public void ScriptProcessorShouldFilterOnEnvironment()
         {
-            var script = @"
+            const string script = @"
             -- @ENV PROD
             update prod stuff;
             -- @ENV TEST
@@ -33,7 +33,7 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
         [Test]
         public void ScriptProcessorShouldSupportWildcardEnvironment()
         {
-            var script = @"
+            const string script = @"
             update everything;
             -- @ENV PROD
             update prod stuff;

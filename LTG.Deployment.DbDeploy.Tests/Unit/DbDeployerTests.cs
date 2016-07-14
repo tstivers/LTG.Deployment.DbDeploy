@@ -4,7 +4,6 @@ using LTG.Deployment.DbDeploy.Core;
 using LTG.Deployment.DbDeploy.Core.Exceptions;
 using LTG.Deployment.DbDeploy.Core.Models;
 using LTG.Deployment.DbDeploy.Core.Repositories;
-using LTG.Deployment.DbDeploy.DataAccess.Repositories;
 using Moq;
 using NUnit.Framework;
 using System;

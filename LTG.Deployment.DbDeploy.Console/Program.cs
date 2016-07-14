@@ -5,8 +5,8 @@ using LTG.Deployment.DbDeploy.Core;
 using LTG.Deployment.DbDeploy.Core.Exceptions;
 using LTG.Deployment.DbDeploy.Core.Helpers;
 using LTG.Deployment.DbDeploy.Core.Repositories;
-using LTG.Deployment.DbDeploy.DataAccess.Repositories;
 using StructureMap;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO.Abstractions;
@@ -19,7 +19,7 @@ namespace LTG.Deployment.DbDeploy.Console
         [UsedImplicitly]
         private static ILog _logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             XmlConfigurator.Configure();
             _logger.Info("Starting DbDeploy");
@@ -45,9 +45,10 @@ namespace LTG.Deployment.DbDeploy.Console
             }
             catch (DbDeployException) // don't need to log stack trace for these as they are logical errors
             {
+                return -1;
             }
 
-            System.Console.ReadKey();
+            return 0;
         }
     }
 }
