@@ -2,6 +2,7 @@
 using log4net.Core;
 using LTG.Deployment.DbDeploy.Core;
 using LTG.Deployment.DbDeploy.Core.Exceptions;
+using LTG.Deployment.DbDeploy.Core.Helpers;
 using LTG.Deployment.DbDeploy.Core.Models;
 using LTG.Deployment.DbDeploy.Core.Repositories;
 using Moq;
@@ -15,19 +16,25 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
     {
         public MemoryAppender Logs { get; set; }
 
+        public Mock<ITargetDbRepository> TargetDbRepositoryMock { get; set; }
+
+        public Mock<IChangeScriptRepository> ChangeScriptRepositoryMock { get; set; }
+
+        public Mock<IScriptProcessor> ScriptProcessorMock { get; set; }
+
         [SetUp]
         public void SetUp()
         {
             Logs = new MemoryAppender();
             log4net.Config.BasicConfigurator.Configure(Logs);
+            TargetDbRepositoryMock = new Mock<ITargetDbRepository>();
+            ChangeScriptRepositoryMock = new Mock<IChangeScriptRepository>();
+            ScriptProcessorMock = new Mock<IScriptProcessor>();
         }
 
         [Test]
         public void DbDeployShouldAbortOnDuplicateChangeScriptNumbers()
         {
-            var tr = new Mock<ITargetDbRepository>();
-            var sr = new Mock<IChangeScriptRepository>();
-
             var scripts = new[]
             {
                 new ChangeScript
@@ -40,9 +47,9 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
                 }
             };
 
-            sr.Setup(x => x.GetChangeScripts()).Returns(scripts);
+            ChangeScriptRepositoryMock.Setup(x => x.GetChangeScripts()).Returns(scripts);
 
-            var db = new DbDeployer(tr.Object, sr.Object);
+            var db = new DbDeployer(TargetDbRepositoryMock.Object, ChangeScriptRepositoryMock.Object, ScriptProcessorMock.Object);
 
             Assert.That(() => db.GenerateScriptList(), Throws.InstanceOf<DuplicateChangeNumberException>());
         }
@@ -50,9 +57,6 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
         [Test]
         public void DbDeployShouldAbortOnPartiallyAppliedScript()
         {
-            var tr = new Mock<ITargetDbRepository>();
-            var sr = new Mock<IChangeScriptRepository>();
-
             var applied = new[]
             {
                 new Changelog()
@@ -63,9 +67,9 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
                 }
             };
 
-            tr.Setup(x => x.GetChangelogs()).Returns(applied);
+            TargetDbRepositoryMock.Setup(x => x.GetChangelogs()).Returns(applied);
 
-            var db = new DbDeployer(tr.Object, sr.Object);
+            var db = new DbDeployer(TargetDbRepositoryMock.Object, ChangeScriptRepositoryMock.Object, ScriptProcessorMock.Object);
 
             Assert.That(() => db.GenerateScriptList(), Throws.InstanceOf<ScriptPartiallyAppliedException>());
         }
@@ -73,9 +77,6 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
         [Test]
         public void DbDeployShouldWarnOnChangedScripts()
         {
-            var tr = new Mock<ITargetDbRepository>();
-            var sr = new Mock<IChangeScriptRepository>();
-
             var scripts = new[]
             {
                 new ChangeScript
@@ -97,10 +98,10 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
                 }
             };
 
-            sr.Setup(x => x.GetChangeScripts()).Returns(scripts);
-            tr.Setup(x => x.GetChangelogs()).Returns(applied);
+            ChangeScriptRepositoryMock.Setup(x => x.GetChangeScripts()).Returns(scripts);
+            TargetDbRepositoryMock.Setup(x => x.GetChangelogs()).Returns(applied);
 
-            var db = new DbDeployer(tr.Object, sr.Object);
+            var db = new DbDeployer(TargetDbRepositoryMock.Object, ChangeScriptRepositoryMock.Object, ScriptProcessorMock.Object);
 
             db.GenerateScriptList();
 

@@ -6,7 +6,7 @@
 
         public string Filename { get; set; }
 
-        public string Name => $"{Number}{(IsPre ? "pre" : "")} - {Description}";
+        public string Name => $"{Filename}";
 
         public int Number { get; set; }
 

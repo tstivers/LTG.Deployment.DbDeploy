@@ -59,6 +59,7 @@
     <Compile Include="Exceptions\DbDeployException.cs" />
     <Compile Include="Exceptions\DuplicateChangeScriptNumberException.cs" />
     <Compile Include="Exceptions\ScriptFailedException.cs" />
+    <Compile Include="Exceptions\ScriptFolderNotFoundException.cs" />
     <Compile Include="Exceptions\ScriptPartiallyAppliedException.cs" />
     <Compile Include="Helpers\Md5Service.cs" />
     <Compile Include="Helpers\ScriptProcessor.cs" />
@@ -69,7 +70,9 @@
     <Compile Include="Repositories\TargetDbRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

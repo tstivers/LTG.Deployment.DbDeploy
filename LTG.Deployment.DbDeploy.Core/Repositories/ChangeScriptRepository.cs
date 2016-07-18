@@ -1,10 +1,11 @@
 ﻿using JetBrains.Annotations;
 using log4net;
+using LTG.Deployment.DbDeploy.Core.Exceptions;
 using LTG.Deployment.DbDeploy.Core.Helpers;
 using LTG.Deployment.DbDeploy.Core.Models;
-using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -40,7 +41,7 @@ namespace LTG.Deployment.DbDeploy.Core.Repositories
         public IEnumerable<ChangeScript> GetChangeScripts()
         {
             if (!FileSystem.Directory.Exists(ScriptPath))
-                throw new ArgumentException($"Cannot open directory {ScriptPath}");
+                throw new ScriptFolderNotFoundException(ScriptPath);
 
             var changeScripts = new List<ChangeScript>();
 
@@ -53,7 +54,7 @@ namespace LTG.Deployment.DbDeploy.Core.Repositories
 
                 if (!match.Success)
                 {
-                    _logger.Warn($"Skipping file {filename} as it does not appear to be a change script");
+                    _logger.Warn($"Skipping file {filename} as it does not appear to be a change script.");
                     continue;
                 }
 
@@ -70,7 +71,7 @@ namespace LTG.Deployment.DbDeploy.Core.Repositories
                 changeScripts.Add(script);
             }
 
-            return changeScripts;
+            return changeScripts.OrderBy(x => x.Number);
         }
 
         public string GetScriptContents(ChangeScript script)

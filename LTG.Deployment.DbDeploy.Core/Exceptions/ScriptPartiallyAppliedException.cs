@@ -2,14 +2,13 @@
 {
     public class ScriptPartiallyAppliedException : DbDeployException
     {
-        public int Number { get; }
+        public string Name { get; }
 
-        public string Description { get; }
-
-        public ScriptPartiallyAppliedException(int number, string description)
+        public ScriptPartiallyAppliedException(string name)
         {
-            Number = number;
-            Description = description;
+            Name = name;
         }
+
+        public override string Message => $"Script {{{Name}}} was partially applied in a previous execution. Please fix the script and clean up the changelog table before attempting deployment.";
     }
 }

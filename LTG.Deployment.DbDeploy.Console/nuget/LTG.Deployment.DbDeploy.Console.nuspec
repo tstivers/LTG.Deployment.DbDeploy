@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>LTG.Deployment.DbDeploy.Console</id>
+    <version>1.0.0</version>
+    <title>LTG.Deployment.DbDeploy.Console</title>
+    <authors>Lansing Trade Group</authors>
+    <owners>Lansing Trade Group</owners>
+    <projectUrl>https://ltgvs.visualstudio.com/DefaultCollection/vNext/_git/DbDeploy</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Lansing implementaiton of the DbDeploy database versioning system.</description>
+    <releaseNotes>1.0.0 Initial release.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Deployment Console</tags>
+  </metadata>
+  <files>
+    <file src="..\bin\debug\LTG.Deployment.DbDeploy.Console.exe" target="content\tools\DbDeploy.exe" />
+    <file src="..\bin\debug\LTG.Deployment.DbDeploy.Console.exe.config" target="content\tools\DbDeploy.exe.config" />
+    <file src="000 - Sample Script.sql" target="content\Scripts\000 - Sample Script.sql" />
+  </files>
+</package>

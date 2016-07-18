@@ -10,5 +10,8 @@ namespace LTG.Deployment.DbDeploy.Core.Exceptions
         {
             DuplicateScriptNumbers = numbers;
         }
+
+        public override string Message
+            => $"Found duplicate script numbers in changescripts folder: {string.Join(", ", DuplicateScriptNumbers)}";
     }
 }

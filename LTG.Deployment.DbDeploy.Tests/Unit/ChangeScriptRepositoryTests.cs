@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using log4net.Appender;
 using log4net.Core;
+using LTG.Deployment.DbDeploy.Core.Exceptions;
 using LTG.Deployment.DbDeploy.Core.Helpers;
 using LTG.Deployment.DbDeploy.Core.Models;
 using LTG.Deployment.DbDeploy.Core.Repositories;
@@ -33,7 +34,7 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
 
             var repo = new ChangeScriptRepository(ScriptPath, null, fileSystem);
 
-            Assert.That(() => repo.GetChangeScripts(), Throws.ArgumentException.And.Message.Contains(ScriptPath));
+            Assert.That(() => repo.GetChangeScripts(), Throws.InstanceOf<ScriptFolderNotFoundException>().And.Message.Contains(ScriptPath));
         }
 
         [Test]

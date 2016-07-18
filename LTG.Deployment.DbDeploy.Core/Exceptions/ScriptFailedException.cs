@@ -9,11 +9,13 @@ namespace LTG.Deployment.DbDeploy.Core.Exceptions
 
         public string Contents { get; }
 
-        public ScriptFailedException(ChangeScript script, string contents, Exception ex)
-            : base("Script failed to apply", ex)
+        public ScriptFailedException(ChangeScript script, string contents, Exception innerException)
+            : base(null, innerException)
         {
             ChangeScript = script;
             Contents = contents;
         }
+
+        public override string Message => $"Failed to apply script {{{ChangeScript.Name}}}. Error was: {InnerException?.Message}";
     }
 }

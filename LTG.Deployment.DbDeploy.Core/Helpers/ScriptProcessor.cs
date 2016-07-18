@@ -5,11 +5,23 @@ using System.Text.RegularExpressions;
 
 namespace LTG.Deployment.DbDeploy.Core.Helpers
 {
-    public class ScriptProcessor
+    public interface IScriptProcessor
+    {
+        string ProcessScript(string contents);
+    }
+
+    public class ScriptProcessor : IScriptProcessor
     {
         public const string EnvironmentRegex = @"^\s*--\s*@ENV (\S+)\s*$";
 
-        public string ProcessScript(string contents, string env)
+        public string Environment { get; }
+
+        public ScriptProcessor(string environment)
+        {
+            Environment = environment;
+        }
+
+        public string ProcessScript(string contents)
         {
             var sb = new StringBuilder();
             var currentEnv = "*";
@@ -29,7 +41,7 @@ namespace LTG.Deployment.DbDeploy.Core.Helpers
                     }
                     else
                     {
-                        if (currentEnv == "*" || currentEnv == env)
+                        if (currentEnv == "*" || currentEnv == Environment)
                         {
                             sb.AppendLine(line);
                         }

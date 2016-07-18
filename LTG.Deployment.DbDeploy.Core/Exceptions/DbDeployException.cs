@@ -2,7 +2,7 @@
 
 namespace LTG.Deployment.DbDeploy.Core.Exceptions
 {
-    public class DbDeployException : Exception
+    public abstract class DbDeployException : Exception
     {
         public DbDeployException()
         {

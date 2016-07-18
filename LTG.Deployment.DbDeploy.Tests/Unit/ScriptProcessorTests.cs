@@ -21,9 +21,9 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
             update test stuff;
             ";
 
-            var sp = new ScriptProcessor();
+            var sp = new ScriptProcessor("TEST");
 
-            var results = sp.ProcessScript(script, "TEST");
+            var results = sp.ProcessScript(script);
 
             Assert.That(results, Does.Match(@"^\s*update test stuff;\s*$"));
             Assert.That(results, Does.Not.Match(@"^\s*update prod stuff;\s*$"));
@@ -43,9 +43,9 @@ namespace LTG.Deployment.DbDeploy.Tests.Unit
             update everything else;
             ";
 
-            var sp = new ScriptProcessor();
+            var sp = new ScriptProcessor("TEST");
 
-            var results = sp.ProcessScript(script, "TEST");
+            var results = sp.ProcessScript(script);
 
             Assert.That(results, Does.Match(@"^\s*update everything;\s*\s*update test stuff;\s*update everything else;\s*$"));
             Assert.That(results, Does.Not.Match(@"^\s*update prod stuff;\s*$"));

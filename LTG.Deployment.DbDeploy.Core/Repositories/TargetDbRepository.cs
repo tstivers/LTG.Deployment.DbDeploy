@@ -1,13 +1,12 @@
 ﻿using Dapper;
 using LTG.Deployment.DbDeploy.Core.Models;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
 namespace LTG.Deployment.DbDeploy.Core.Repositories
 {
-    public interface ITargetDbRepository : IDisposable
+    public interface ITargetDbRepository
     {
         void InitializeTargetDb();
 
@@ -28,11 +27,6 @@ namespace LTG.Deployment.DbDeploy.Core.Repositories
         }
 
         public IDbConnection Connection { get; }
-
-        private IDbTransaction _readLockTransaction;
-
-        public IDbTransaction ReadLockTransaction => _readLockTransaction ??
-                                                     (_readLockTransaction = Connection.BeginTransaction(IsolationLevel.RepeatableRead));
 
         public string ChangelogTableName { get; set; } = "[dbo].[Changelog]";
 
@@ -100,15 +94,9 @@ namespace LTG.Deployment.DbDeploy.Core.Repositories
             return changelog;
         }
 
-        public void Dispose()
-        {
-            _readLockTransaction?.Rollback();
-            _readLockTransaction?.Dispose();
-        }
-
         public void ExecuteScript(string sql)
         {
-            Connection.Execute(sql);
+            Connection.Execute(sql, commandTimeout: 600);
         }
     }
 }
